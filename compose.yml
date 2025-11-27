@@ -1,0 +1,70 @@
+services:
+  redmine-burndown:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: redmine-burndown:latest
+    container_name: redmine-burndown
+
+    # 環境変数（.envファイルから自動的に読み込まれる）
+    env_file:
+      - .env
+
+    # または、直接環境変数を指定する場合
+    # environment:
+    #   - REDMINE_URL=${REDMINE_URL}
+    #   - REDMINE_API_KEY=${REDMINE_API_KEY}
+
+    # ボリュームマウント
+    volumes:
+      # 出力ディレクトリをマウント（ホストの./outputとコンテナの/app/outputを同期）
+      - ./output:/app/output:rw
+
+      # .envファイルをマウント（env_fileだけでは不十分なのでマウントも必要）
+      - ./.env:/app/.env:ro
+
+      # テンプレートディレクトリをマウント（カスタマイズする場合）
+      - ./templates:/app/templates:ro
+
+    # 作業ディレクトリ
+    working_dir: /app
+
+    # ネットワーク設定（Redmine APIへのアクセスに必要）
+    network_mode: bridge
+
+    # リソース制限（オプション）
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+
+    # 再起動ポリシー（cronジョブとして使用する場合は'no'）
+    restart: "no"
+
+    # ログ設定
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    # ヘルスチェック（オプション）
+    # healthcheck:
+    #   test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 3
+    #   start_period: 5s
+# 名前付きボリューム（オプション：永続化が必要な場合）
+volumes:
+  output:
+    driver: local
+
+# ネットワーク設定（オプション：カスタムネットワークが必要な場合）
+networks:
+  redmine-network:
+    driver: bridge
