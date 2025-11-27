@@ -56,7 +56,7 @@ Redmine REST APIを使用してチケット情報を取得し、バーンダウ�
 #### 1. リポジトリをクローン
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/okamyuji/redmine-burndown
 cd redmine-burndown
 ```
 
